@@ -1,0 +1,42 @@
+`ama.txt` contains a single line of transcript text in the format: INTRO QUESTION1 ANSWER1 QUESTION2 ANSWER2 ... QUESTIONK NASWERK OUTRO. You task is to identify beginning and end of the indiviidual questions and answers and separate them out in a specific format:
+\n--\nQUESTIONi>\nANSWERi
+- First, go through all the questions in questions.txt. Sometimes multiple questions are grouped together wrapped around by asterisks. Note down the count of number of questions or groups of questions.
+- Create a tasklist in tasks.txt for each question or question group with a todo for the question and answer. For N questions, tasks.txt should thus have 2*N todo items.
+
+`ama.txt` started as a single line of transcript text consisting of k questions+answers in the format: INTRO QUESTION1 ANSWER1 QUESTION2 ANSWER2 ... QUESTIONK ANSWERK OUTRO. You task is to identify beginning and end of the individual questions and answers and separate them out in a specific format
+\n\n--\n\nQUESTIONi\n\nANSWERi, where nQUESTIONi and nANSWERi are beginning of the question_i and answer_i, respectively, for all i from 1 to k.
+- Analyze questions.txt.
+- tasks.txt identifies how many questions and answers need to be found, extracted from questions.txt.
+- Ignore the DONE pairs. For each TODO pair, go through ama.txt in chunks, identify i) where the question starts in the text, ii) where the answer starts iii) where the answer ends and next question starts.
+- Then use the bash `sed -i` command to insert new lines before and after each questions and answer in the file such that above format is maintained.
+- Mark the pair as DONE in tasks.txt and save the sed command used to edit ama.txt for both the question and the answer.
+Note:
+- The last line of ama.txt is a long single line. Use chars-based processing instead of line-based.
+- The strings in questions.txt/tasks.txt do not exactly match ama.txt strings, so you cannot use a script to detect them. Read through the text and figure out the fuzzy boundaries yourself.
+IMPORTANT:
+- The only changes to ama.txt should be to add the above pattern. Do NOT add any new word or modify exisiting content.
+- If already formatted, do NOT add duplicate formatting.
+
+HINT:
+- The logic you have to implement is:
+questions = [list of question or question group in question.txt]
+chunks = [list of chunks in ama.txt]
+next_chunk = next(chunks)
+for question in questions:
+    find beginning of question in next_chunk # cannot be a script because matching is fuzzy
+    if found, `sed -i` ama.txt
+    find beginning of answer for question in next_chunk
+    if found, `sed -i` ama.txt
+    if not enough next_chunk:
+        next_chunk = next(chunks)
+- Figure out how to best follow the above logic. You need to run until all questions have been identified.
+
+Implement an LLM agent in Python. Use OpenAI-compatible API for LLM calls and embeddings. The goal is to correctly format a podcast transcript available as a single line in the text file ama.txt.  The script should create the following pipeline:
+1) Read the associated questions.txt file to make a list of questions or group of questions. See tasks.txt for an example.
+2) Run a loop for each question, use an LLM to find the exact location where the question begins in ama.txt, and where its answer begins and end. The LLM should respond with a structured output, perhaps using BAML, as "question: <first 10 words of the question>, answer: <first 10 words of the answer>"
+3) Use python code to do a file edit to insert "\n\n--\n\n" before the beginning of the question and "\n\n" before the beginning of the answer
+4) Run until all questions have been identified and formatted, such that the single line has been split into the separate questions and answers appropriately.
+5) Handle edge cases appropriately
+Note:
+- LLM needs to do a fuzzy search by understanding the ama.txt content, because the names and questions in questions.txt won't exactly match the transcript
+- ama.txt is a large file and needs to be processed in chunks
