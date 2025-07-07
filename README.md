@@ -25,19 +25,20 @@ echo OPENAI_API_KEY="sk-..." > .env
 
 ## Needed files from the AMA description page
 
-* `raw.txt` – Raw transcript.
-* `questions.txt` – Raw questions list.
+* `raw.txt` – Raw transcript copied from the AMA description page.
+* `questions.txt` – Raw questions list copied from the AMA description page.
 
 ## Usage
 
 ```bash
 cat ./files/raw.txt | tr '\n' '-' | sed -r -e 's/-+[0-9\:\.]+ (S.?|Sean Carroll): / /g' > ./files/ama.txt
+# Best to remove the intro and outro from the raw transcript manually.
 uv run python src/mindscape-ama-format/prepare_questions.py \
    -q ./files/questions.txt -o ./files/questions.json
 uv run python src/mindscape-ama-format/extract_qa.py \
    -t ./files/ama.txt -q ./files/questions.json -o ./files/output.json
 uv run python src/mindscape-ama-format/final_output.py \
-   -t ./files/ama.txt -i ./files/output.json -y 2025.06 -o ./files/out.csv
+   -t ./files/ama.txt -i ./files/output.json -y 2025.06 -o ./files/qa.csv
 ```
 
 The script will:
