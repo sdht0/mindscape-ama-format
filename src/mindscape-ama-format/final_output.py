@@ -35,6 +35,14 @@ def main() -> None:
         help="Path to output file",
         required=True,
     )
+    parser.add_argument(
+        "--format",
+        "-f",
+        type=str,
+        help="csv or txt",
+        required=False,
+        default="csv",
+    )
     args = parser.parse_args()
 
     # Read the transcript file
@@ -46,10 +54,16 @@ def main() -> None:
     for index, data in indices.items():
         question_snippet = data["question_snippet"]
         answer_snippet = data["answer_snippet"]
-        transcript = transcript.replace(
-            question_snippet, f"\n{args.year}\t{int(index) + 1}\t{question_snippet}"
-        )
-        transcript = transcript.replace(answer_snippet, f"\t{answer_snippet}")
+        if args.format == "csv":
+            transcript = transcript.replace(
+                question_snippet, f"\n{args.year}\t{int(index) + 1}\t{question_snippet}"
+            )
+            transcript = transcript.replace(answer_snippet, f"\t{answer_snippet}")
+        elif args.format == "txt":
+            transcript = transcript.replace(
+                question_snippet, f"\n\n--\n\n{question_snippet}"
+            )
+            transcript = transcript.replace(answer_snippet, f"\n\n{answer_snippet}")
 
     args.output.write_text(transcript, encoding="utf-8")
 
